@@ -2,14 +2,15 @@ let ctx = null, canvas = null;
 
 class bar
 {
-    constructor(xPos, yPos, width, height, color)
+    constructor(xPos, yPos, width, height, color, yMin, yMax)
     {
         this.color = color;
         this.xPos = xPos;
         this.yPos = yPos;
         this.width = width;
         this.height = height;
-     
+        this.yMax = yMax;
+        this.yMin = yMin;
 
         
     }
@@ -24,10 +25,11 @@ class bar
 
 
 
-    //TODO
+    
     update()
     {
-
+        if(this.yPos < this.yMin) this.yPos = this.yMin
+        if(this.yPos > (this.yMax - this.height)) this.yPos = this.yMax - this.height
     }
 }
 
@@ -93,10 +95,10 @@ function update(sphere, bars)
  function inputHandlers(bar_l,bar_r)
  {
      document.addEventListener("keydown", event=>{
-         if(event.key == 'q') console.log("up")
-         if(event.key == 'a') console.log("down")
-         if(event.key == 'o') bar_r.y -= 10
-         if(event.key == 'l') bar_r.y += 10
+         if(event.key == 'q') bar_l.yPos -= 10
+         if(event.key == 'a') bar_l.yPos += 10
+         if(event.key == 'o') bar_r.yPos -= 10
+         if(event.key == 'l') bar_r.yPos += 10
      })
  }
 
@@ -107,8 +109,8 @@ function main()
 
     let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white');
     
-    let bar_l = new bar(10,30,20,50,'white');
-    let bar_r = new bar(canvas.width - 30,30,20,50,'white');
+    let bar_l = new bar(10,30,20,50,'white',0,canvas.height);
+    let bar_r = new bar(canvas.width - 30,30,20,50,'white',0,canvas.height);
     
     
     update(sphere1,[bar_l,bar_r]);
