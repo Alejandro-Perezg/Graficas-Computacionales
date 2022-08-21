@@ -23,7 +23,7 @@ class bar
 
     update(xMin, xMax, yMin, yMax)
     {
-
+        
     }
 }
 class ball
@@ -75,9 +75,9 @@ function update(sphere, bars)
 
     ctx.clearRect(0,0, canvas.width, canvas.height);
     
-    bars.forEach(bar =>{
-        bar.draw();
-        bar.update();
+    bars.forEach(bars =>{
+        bars.draw();
+        bars.update();
     });
 
         sphere.draw();
@@ -101,9 +101,9 @@ function main()
     ctx = canvas.getContext("2d");
 
     let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white');
-    let left_bar = new bar(10,30,20,50,'white');
-    let right_bar = new bar(canvas.width - 30,30,20,50,'white');
+    let bar_l = new bar(10,30,20,50,'white');
+    let bar_r = new bar(canvas.width - 30,30,20,50,'white');
     
-    inputHandlers(left_bar,right_bar)
-    update(sphere1,[left_bar,right_bar]);
+    inputHandlers(bar_l,bar_r);
+    update(sphere1,[bar_l,bar_r]);
 }
