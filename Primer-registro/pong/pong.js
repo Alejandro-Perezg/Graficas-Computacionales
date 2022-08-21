@@ -9,6 +9,7 @@ class bar
         this.yPos = yPos;
         this.width = width;
         this.height = height;
+     
 
         
     }
@@ -21,11 +22,15 @@ class bar
         
     }
 
-    update(xMin, xMax, yMin, yMax)
+
+
+    //TODO
+    update()
     {
-        
+
     }
 }
+
 class ball
 {
     constructor(xPos, yPos, radius, color)
@@ -48,7 +53,7 @@ class ball
         ctx.arc(this.xPos, this.yPos, this.radius, 0, Math.PI * 2);
         ctx.fill();
     }
-
+ 
     update(xMin, xMax, yMin, yMax)
     {
         if(this.xPos < (xMin + this.radius)) this.right = true;
@@ -85,15 +90,15 @@ function update(sphere, bars)
 
 }
 
-function inputHandlers(bar_l,bar_r)
-{
-    document.addEventListener("keydown", event=>{
-        if(event.key == 'q') bar_l.y -= 10
-        if(event.key == 'a') bar_l.y += 10
-        if(event.key == 'o') bar_r.y -= 10
-        if(event.key == 'l') bar_r.y += 10
-    })
-}
+ function inputHandlers(bar_l,bar_r)
+ {
+     document.addEventListener("keydown", event=>{
+         if(event.key == 'q') console.log("up")
+         if(event.key == 'a') console.log("down")
+         if(event.key == 'o') bar_r.y -= 10
+         if(event.key == 'l') bar_r.y += 10
+     })
+ }
 
 function main()
 {
@@ -101,9 +106,11 @@ function main()
     ctx = canvas.getContext("2d");
 
     let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white');
+    
     let bar_l = new bar(10,30,20,50,'white');
     let bar_r = new bar(canvas.width - 30,30,20,50,'white');
     
-    inputHandlers(bar_l,bar_r);
+    
     update(sphere1,[bar_l,bar_r]);
+    inputHandlers(bar_l,bar_r);
 }
