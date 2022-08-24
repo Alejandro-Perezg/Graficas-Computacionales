@@ -35,15 +35,22 @@ class bar
 
 class ball
 {
-    constructor(xPos, yPos, radius, color)
+    constructor(xPos, yPos, radius, color,xMax,yMax,bar_l,bar_r,height)
     {
         this.color = color;
         this.xPos = xPos;
         this.yPos = yPos;
         this.radius = radius;
+        this.xMax = xMax;
+        this.yMax = yMax;
+        this.bar_l = bar_l;
+        this.bar_r = bar_r;
+        this.height = height;
 
-        this.up = false;
+        this.isUp = false;
         this.right = true;
+
+        
 
         this.speed = 1;
     }
@@ -73,6 +80,28 @@ class ball
             this.yPos -= this.speed;
         else    
             this.yPos += this.speed;
+
+
+
+        if(((this.xPos + this.radio) >= this.bar_r.xPos) && 
+        (this.yPos <= (this.bar_r.yPos + this.height)) && 
+        (this.yPos >= this.bar_r.yPos) )
+        {
+            this.right = true
+        }
+
+        if(((this.xPos + this.radio) <= this.bar_l.xPos + this.bar_l.width) && 
+        (this.yPos <= (this.bar_l.yPos + this.height)) && 
+        (this.yPos >= this.bar_l.yPos) )
+        {
+            this.right = false
+        }        
+        
+        if (this.isUp == true) this.yPos -= 3
+        if (this.isUp == false) this.yPos += 3
+        if (this.right) this.yPos -= 3
+        if (!this.right) this.yPos -= 3
+
     }
 }
 
@@ -107,12 +136,13 @@ function main()
     canvas = document.getElementById("animationCanvas");
     ctx = canvas.getContext("2d");
 
-    let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white');
+    
     
     let bar_l = new bar(10,30,20,50,'white',0,canvas.height);
     let bar_r = new bar(canvas.width - 30,30,20,50,'white',0,canvas.height);
-    
+    let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white',canvas.height, canvas.width, bar_l,bar_r,90);
     
     update(sphere1,[bar_l,bar_r]);
     inputHandlers(bar_l,bar_r);
 }
+
