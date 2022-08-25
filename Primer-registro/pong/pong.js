@@ -35,7 +35,7 @@ class bar
 
 class ball
 {
-    constructor(xPos, yPos, radius, color,xMax,yMax,bar_l,bar_r,height)
+    constructor(xPos, yPos, radius, color,yMax,xMax,height,bar_l,bar_r)
     {
         this.color = color;
         this.xPos = xPos;
@@ -47,12 +47,9 @@ class ball
         this.bar_r = bar_r;
         this.height = height;
 
-        this.isUp = false;
-        this.right = true;
+ 
 
-        
-
-        this.speed = 1;
+        this.speed = 2;
     }
 
     draw()
@@ -65,11 +62,28 @@ class ball
  
     update(xMin, xMax, yMin, yMax)
     {
+        //bordes
         if(this.xPos < (xMin + this.radius)) this.right = true;
         if(this.xPos > (xMax - this.radius)) this.right = false;
 
+    
         if(this.yPos > (yMax - this.radius)) this.up = true;
         if(this.yPos < (yMin + this.radius)) this.up = false;
+
+        // paletas
+        //paleta izq
+        if(((this.xPos - this.radius) <= (this.bar_l.xPos + this.bar_l.width) && 
+        (this.yPos <= (this.bar_l.yPos + this.height)) && 
+        (this.yPos >= this.bar_l.yPos))){
+            this.right = true
+        }
+        //barra der
+        if(((this.xPos + this.radius) >= this.bar_r.xPos && 
+        (this.yPos <= (this.bar_r.xPos + this.height)) && 
+        (this.yPos >= this.bar_r.yPos)) ){
+            this.right = false
+        }
+
 
         if(this.right)
             this.xPos += this.speed;
@@ -83,26 +97,9 @@ class ball
 
 
 
-        if(((this.xPos + this.radio) >= this.bar_r.xPos) && 
-        (this.yPos <= (this.bar_r.yPos + this.height)) && 
-        (this.yPos >= this.bar_r.yPos) )
-        {
-            this.right = true
-        }
-
-        if(((this.xPos + this.radio) <= this.bar_l.xPos + this.bar_l.width) && 
-        (this.yPos <= (this.bar_l.yPos + this.height)) && 
-        (this.yPos >= this.bar_l.yPos) )
-        {
-            this.right = false
-        }        
-        
-        if (this.isUp == true) this.yPos -= 3
-        if (this.isUp == false) this.yPos += 3
-        if (this.right) this.yPos -= 3
-        if (!this.right) this.yPos -= 3
-
     }
+
+
 }
 
 function update(sphere, bars)
@@ -131,6 +128,8 @@ function update(sphere, bars)
      })
  }
 
+ 
+
 function main()
 {
     canvas = document.getElementById("animationCanvas");
@@ -140,9 +139,9 @@ function main()
     
     let bar_l = new bar(10,30,20,50,'white',0,canvas.height);
     let bar_r = new bar(canvas.width - 30,30,20,50,'white',0,canvas.height);
-    let sphere1 = new ball(Math.random() * canvas.width, Math.random() * canvas.height, 10, 'white',canvas.height, canvas.width, bar_l,bar_r,90);
-    
-    update(sphere1,[bar_l,bar_r]);
-    inputHandlers(bar_l,bar_r);
-}
+    let sphere1 = new ball(canvas.width / 2,canvas.height/2, 10, 'white',canvas.height,canvas.width,bar_l.height,bar_l,bar_r);
 
+    inputHandlers(bar_l,bar_r);
+    update(sphere1,[bar_l,bar_r]);
+    
+}
