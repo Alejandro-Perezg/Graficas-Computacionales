@@ -17,10 +17,8 @@ class bar
 
     draw()
     {
-       
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.xPos,this.yPos,this.width,this.height);
-        
+        ctx.fillRect(this.xPos,this.yPos,this.width,this.height); 
     }
 
 
@@ -65,8 +63,6 @@ class ball
         //bordes
         if(this.xPos < (xMin + this.radius)) this.right = true;
         if(this.xPos > (xMax - this.radius)) this.right = false;
-
-    
         if(this.yPos > (yMax - this.radius)) this.up = true;
         if(this.yPos < (yMin + this.radius)) this.up = false;
 
@@ -77,12 +73,32 @@ class ball
         (this.yPos >= this.bar_l.yPos))){
             this.right = true
         }
-        //barra der
+
+        
+        //rebote superior
+        if ((this.yPos + this.radius ) >= (this.bar_l.yPos) &&
+            (this.xPos <= (this.bar_l.xPos + this.bar_l.width)))
+        {
+            this.up = true;    
+        }
+
+
+
+        //paleta der
         if(((this.xPos + this.radius) >= this.bar_r.xPos && 
-        (this.yPos <= (this.bar_r.xPos + this.height)) && 
+        (this.yPos <= (this.bar_r.yPos + this.height)) && 
         (this.yPos >= this.bar_r.yPos)) ){
             this.right = false
         }
+
+        //rebote superior
+        if ((this.yPos + this.radius) >= (this.bar_r.yPos) &&
+            (this.xPos >= (this.bar_r.xPos))) 
+        {
+            this.up = true;    
+        }
+
+          
 
 
         if(this.right)
@@ -145,3 +161,4 @@ function main()
     update(sphere1,[bar_l,bar_r]);
     
 }
+
