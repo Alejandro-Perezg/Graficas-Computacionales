@@ -1,4 +1,4 @@
-let ctx = null , canvas = null
+
 class triangle
 {
     constructor(points)
@@ -29,7 +29,7 @@ function getMids(points)
     midA = Array((vertex1[0] + vertex2[0])/2, (vertex1[1] + vertex2[1])/2)
     midB = Array((vertex2[0] + vertex3[0])/2, (vertex2[1] + vertex3[1])/2)
     midC = Array((vertex1[0] + vertex3[0])/2, (vertex1[1] + vertex3[1])/2)
-    newPoints = [midA,midB,midC]
+    let newPoints = [midA, midB, midC]
 
     return newPoints
 }
@@ -46,7 +46,7 @@ function drawLevels(points,steps)
     }
 }
 
-function getSliderVal(canvas,points,ctx)
+function getSliderVal(canvas,points)
 {
     document.getElementById("slider").oninput = function(event)
     {
@@ -61,6 +61,6 @@ function main()
 {
     let points = [[200,100],[100,300],[300,300]]
     let canvas = document.getElementById("triangleCanvas")
-    let ctx = canvas.getContext("2d")
-    getSliderVal(canvas,points,ctx)
+    ctx = canvas.getContext("2d")
+    getSliderVal(canvas,points)
 }

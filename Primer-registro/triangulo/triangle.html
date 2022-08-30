@@ -7,12 +7,12 @@
     <script src="triangle.js"></script>
     <title>Sierpinsky</title>
 </head>
-<body>
+<body onload="main()">
     <h1>Sierpinsky triangle</h1>
     <div>
-        <label for="slider">Recursion levels: </label>
+        
         <input id="slider" type="range" min="0" max="10" step="1" value="0" >
-        <h2 id="valSlider"> Level: </h2>
+        <h2 id="valSlider">Recursion Level: </h2>
     </div>
         <canvas id="triangleCanvas" width="500" height="500" style="background-color: black;"></canvas>
     
