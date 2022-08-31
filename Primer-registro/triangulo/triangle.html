@@ -8,14 +8,20 @@
     <title>Sierpinsky</title>
 </head>
 <body onload="main()">
-    <h1>Sierpinsky triangle</h1>
+
     <div>
-        
-        <input id="slider" type="range" min="0" max="10" step="1" value="0" >
-        <h2 id="valSlider">Recursion Level: </h2>
+        <label for="slider">Recursive Steps</label><br>
+        <input id="slider" type="range" min="0" 
+            max="10" step="1" value="0" style="width:500px">
+        <div id="sliderValue">Levels:  </div>
     </div>
-        <canvas id="triangleCanvas" width="500" height="500" style="background-color: black;"></canvas>
-    
+    <div>
+        <canvas id="htmlCanvas" 
+        width="400" height="350" 
+        style="background-color: black; 
+        border-style: solid; 
+        border-width: 2px;"></canvas>
+    </div>
     
 </body>
 </html>
