@@ -48,7 +48,7 @@ function drawLevels(points,steps)
     }
 }
 
-function getSliderVal(canvas,points)
+        function getSliderVal(canvas,points)
 {
     document.getElementById("slider").oninput = function(event)
     {
