@@ -44,10 +44,7 @@ class pacman
         if(!this.waka) this.radians = this.radians - 0.1
                     console.log('cerrando '+this.radians);
 
-
     }
-
-     
 }
 
 function update(pacman)
@@ -66,7 +63,6 @@ function main()
     canvas = document.getElementById("animationCanvas");
     ctx = canvas.getContext("2d");
     let pac = new pacman(0, 150, 50, 0.76);
-
 
     update(pac);
 }

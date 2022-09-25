@@ -38,10 +38,22 @@ function update(gl, shaderProgram, Star)
 
 function createStar(gl) 
 {
-    let Star = {};
+    let vertexBuffer;
+    vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    let verts = [
+        .5,  .5,  0.0,
+        -.5, .5,  0.0,
+        .5,  -.5,  0.0,
+        -.5, -.5,  0.0,       
+    ];
 
-    return Star;
-}
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+
+    let star = {buffer:vertexBuffer, vertSize:3, nVerts:4, primtype:gl.TRIANGLE_STRIP};
+   
+
+    return star;
 
 function main() 
 {
@@ -53,7 +65,7 @@ function main()
 
     const shaderProgram = shaderUtils.initShader(gl, vertexShaderSource, fragmentShaderSource);
 
-    let Star = createStar(gl);
+    let star = createStar(gl);
 
     bindShaderAttributes(gl, shaderProgram);
     
