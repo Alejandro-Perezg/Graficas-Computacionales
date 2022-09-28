@@ -1,47 +1,51 @@
-// Three js documentation
-// https://threejs.org/manual/
-// https://threejs.org/docs/index.html#manual/introduction/Creating-a-scene
-
-"use strict";
+"use strict"; 
 
 import * as THREE from "../libs/three.js/three.module.js"
+//import {addMouseHandler} from "./sceneHandlers.js"
 
-let renderer = null,    // Object in charge of drawing a scene
-scene = null,           // Top-level object in the Three.js graphics hierarchy. Three js contains all
-                        // graphical objects in a parent-child hierarchy
-camera = null,
-cube = null,
-cube2 = null;
+let renderer = null, scene = null, camera = null, cube = null, sphere = null, cone = null, sphereGroup = null, cubeGroup = null, coneGroup = null;
 
-const duration = 10000; // ms
+const duration = 5000; // ms
 let currentTime = Date.now();
 
 function main() 
 {
     const canvas = document.getElementById("webglcanvas");
-    scene_setup();
-    create_cube();
+    createScene(canvas);
     update();
 }
 
+/**
+ * Updates the rotation of the objects in the scene
+ */
 function animate() 
-{		
-    let now = Date.now();
-    let deltat = now - currentTime;
+{
+    const now = Date.now();
+    const deltat = now - currentTime;
     currentTime = now;
-    let fract = deltat / duration;
-    let angle = Math.PI * 2 * fract;
+    const fract = deltat / duration;
+    const angle = Math.PI * 2 * fract;
 
+    // Rotate the cube about its Y axis
+    // cube.rotation.y += angle;
     cube.rotation.y += angle;
-    cube.rotation.x += angle;
+    cubeGroup.rotation.y += angle;
+    
 
-    cube2.rotation.y -= angle;
-    cube2.rotation.x -= angle;
+    // Rotate the sphere group about its Y axis
+    sphereGroup.rotation.x -= angle / 2;
+    sphere.rotation.y += angle * 2;
+
+    // Rotate the cone about its X axis (tumble forward)
+    coneGroup.rotation.x += angle;
 }
 
+/**
+ * Runs the update loop: updates the objects in the scene
+ */
 function update()
 {
-    requestAnimationFrame(() => update() );
+    requestAnimationFrame(function() { update(); });
     
     // Render the scene
     renderer.render( scene, camera );
@@ -50,82 +54,114 @@ function update()
     animate();
 }
 
-function scene_setup(canvas)
-{
-   
-
-    // Create the Three.js renderer and attach it to our canvas. Different renderes can be used, for example to a 2D canvas.
+/**
+ * Creates a basic scene with lights, a camera, and 3 objects
+ * @param {canvas} canvas The canvas element to render on
+ */
+function createScene(canvas)
+{   
+    // Create the Three.js renderer and attach it to our canvas
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
 
-    // Set the viewport size.
+    // Set the viewport size
     renderer.setSize(canvas.width, canvas.height);
-
-    // Create a new Three.js scene.
+    
+    // Create a new Three.js scene
     scene = new THREE.Scene();
-    
-    // Adds a color to the background
-    scene.background = new THREE.Color(0,24,45);
 
-    // Add  a camera so we can view the scene. Three js uses these values to create a projection matrix.
-    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 40 );
-    // camera = new THREE.OrthographicCamera(-10, 10, 10, -10, 1, 40);
+    // Set the background color 
+    scene.background = new THREE.Color( 0.2, 0.2, 0.2 );
+
+    // Add  a camera so we can view the scene
+    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 20 );
+    camera.position.z = 10;
     scene.add(camera);
-}
+    // Add a directional light to show off the objects
+    const light = new THREE.DirectionalLight( 0xffffff, 1.0);
 
-function create_cube()
-{
-    // Create a texture-mapped cube and add it to the scene
+    // Position the light out from the scene, pointing at the origin
+    light.position.set(-.5, .2, 1);
+    light.target.position.set(0,-2,0);
+    scene.add(light);
 
-    // Create the texture 
-    const textureUrl = "../images/drifter-culo.jpg";
-    const texture = new THREE.TextureLoader().load(textureUrl);
+    // This light globally illuminates all objects in the scene equally.
+    // Cannot cast shadows
+    const ambientLight = new THREE.AmbientLight(0xffccaa, 0.2);
+    scene.add(ambientLight);
+
+    // Create a group to hold all the objects
+    cubeGroup = new THREE.Object3D;
+
+    console.log(cubeGroup.position);
     
-    // Create a Basic material; pass in the texture. Simple material with no lighting effects.
-    const material = new THREE.MeshBasicMaterial({ map: texture });
+   
+
+    const textureUrl = "../images/necoarc.png";
+    const texture = new THREE.TextureLoader().load(textureUrl);
+    const material = new THREE.MeshPhongMaterial({ map: texture });
 
     // Create the cube geometry
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    let geometry = new THREE.BoxGeometry(1, 3, 1);
 
     // And put the geometry and material together into a mesh
     cube = new THREE.Mesh(geometry, material);
 
-    // Move the mesh back from the camera and tilt it toward the viewer
-    cube.position.z = -8;
-    cube.position.x -= 2.5;
+    // Tilt the mesh toward the viewer
+    //cube.rotation.x = Math.PI / 5;
+    //cube.rotation.y = Math.PI / 5;
 
-    // Rotation in radians
-    cube.rotation.x = Math.PI / 8;
-    cube.rotation.y = Math.PI / 5;
+    // Add the cube mesh to our group
+    cubeGroup.add( cube );
 
-    // Finally, add the mesh to our scene
-    scene.add( cube );
+    cubeGroup.position.set(0, 1, 0);
 
-    const colors = [];
-
-    for(let i = 0; i < 6; i++)
-    {
-        const red = Math.random();
-        const green = Math.random();
-        const blue = Math.random();
-
-        for (let j = 0; j< 4; j++)
-        {
-            colors.push(red, green, blue);
-        }
-    }
-
-    const colorsAttr = new THREE.Float32BufferAttribute(colors, 3);
-
-    geometry.setAttribute('color', colorsAttr);
-
-    const material2 = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-
-    cube2 = new THREE.Mesh(geometry, material2);
-
-    cube2.position.z = -8;
-    cube2.position.x += 2.5;
+    console.log("cube group position", cubeGroup.position);
+    // Create a group for the sphere
+    sphereGroup = new THREE.Object3D;
+    cubeGroup.add(sphereGroup);
     
-    scene.add( cube2 );
+    // Move the sphere group up and back from the cube
+    sphereGroup.position.set(0, -2, 0);
+
+    // Create the sphere geometry
+    geometry = new THREE.SphereGeometry(0.7, 10, 20);
+    
+    // And put the geometry and material together into a mesh
+    sphere = new THREE.Mesh(geometry, material);
+
+    // sphere.position.set(2, 1, 1);
+    console.log("sphere position", sphere.position);
+    // Add the sphere mesh to our group
+    sphereGroup.add( sphere );
+
+    coneGroup = new THREE.Object3D();
+    sphereGroup.add(coneGroup);
+    // Create the cone geometry
+    geometry = new THREE.CylinderGeometry(0, .333, .444, 20, 20);
+
+    // coneGroup.position.set(1, 1.222, -.667);
+    // And put the geometry and material together into a mesh
+    cone = new THREE.Mesh(geometry, material);
+
+    // Move the cone up and out from the sphere
+    cone.position.set(0, 2.222, 0);
+        
+    // Add the cone mesh to our group
+    coneGroup.add( cone );
+    
+    // Now add the group to our scene
+    scene.add( cubeGroup );
+
+    // add mouse handling so we can rotate the scene
+    //addMouseHandler(canvas, cubeGroup);
+
+    // This code gets the world position of the cone.
+    const coneWorldPosition = new THREE.Vector3();
+
+    // cubeGroup.updateMatrixWorld();
+    // sphereGroup.updateMatrixWorld();
+    // cone.updateMatrixWorld();
+
 }
 
 main();
