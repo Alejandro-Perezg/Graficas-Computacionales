@@ -3,7 +3,7 @@
 import * as THREE from "../libs/three.js/three.module.js"
 //import {addMouseHandler} from "./sceneHandlers.js"
 
-let renderer = null, scene = null, camera = null, cube = null, sphere = null, cone = null, sphereGroup = null, cubeGroup = null, coneGroup = null;
+let renderer = null, scene = null, camera = null, shoulder = null, arm = null, elbow = null, armGroup = null, shoulderGroup = null, elbowGroup = null;
 
 const duration = 5000; // ms
 let currentTime = Date.now();
@@ -28,16 +28,16 @@ function animate()
 
     // Rotate the cube about its Y axis
     // cube.rotation.y += angle;
-    cube.rotation.y += angle;
-    cubeGroup.rotation.y += angle;
+    shoulder.rotation.y += angle;
+    shoulderGroup.rotation.y += angle;
     
 
     // Rotate the sphere group about its Y axis
-    sphereGroup.rotation.x -= angle / 2;
-    sphere.rotation.y += angle * 2;
+    armGroup.rotation.x -= angle / 2;
+    arm.rotation.y += angle * 2;
 
     // Rotate the cone about its X axis (tumble forward)
-    coneGroup.rotation.x += angle;
+    elbowGroup.rotation.x += angle;
 }
 
 /**
@@ -51,7 +51,7 @@ function update()
     renderer.render( scene, camera );
 
     // Spin the cube for next frame
-    animate();
+    //animate();
 }
 
 /**
@@ -84,73 +84,52 @@ function createScene(canvas)
     light.target.position.set(0,-2,0);
     scene.add(light);
 
+    const textureUrl = "../images/necoarc.png";
+    const texture = new THREE.TextureLoader().load(textureUrl);
+    const material = new THREE.MeshPhongMaterial({ map: texture });
+
     // This light globally illuminates all objects in the scene equally.
     // Cannot cast shadows
     const ambientLight = new THREE.AmbientLight(0xffccaa, 0.2);
     scene.add(ambientLight);
 
     // Create a group to hold all the objects
-    cubeGroup = new THREE.Object3D;
-
-    console.log(cubeGroup.position);
+    shoulderGroup = new THREE.Object3D;
+    let geometry = new THREE.BoxGeometry(1, 1, 1);
+    shoulder = new THREE.Mesh(geometry, material);
+    shoulder.rotation.y = Math.PI / 5;
+    shoulderGroup.add( shoulder );
+    shoulderGroup.position.set(0, 3.5, 0);
+    armGroup = new THREE.Object3D;
+    shoulderGroup.add(armGroup);
     
-   
-
-    const textureUrl = "../images/necoarc.png";
-    const texture = new THREE.TextureLoader().load(textureUrl);
-    const material = new THREE.MeshPhongMaterial({ map: texture });
-
-    // Create the cube geometry
-    let geometry = new THREE.BoxGeometry(1, 3, 1);
-
-    // And put the geometry and material together into a mesh
-    cube = new THREE.Mesh(geometry, material);
-
-    // Tilt the mesh toward the viewer
-    //cube.rotation.x = Math.PI / 5;
-    //cube.rotation.y = Math.PI / 5;
-
-    // Add the cube mesh to our group
-    cubeGroup.add( cube );
-
-    cubeGroup.position.set(0, 1, 0);
-
-    console.log("cube group position", cubeGroup.position);
-    // Create a group for the sphere
-    sphereGroup = new THREE.Object3D;
-    cubeGroup.add(sphereGroup);
-    
-    // Move the sphere group up and back from the cube
-    sphereGroup.position.set(0, -2, 0);
 
     // Create the sphere geometry
-    geometry = new THREE.SphereGeometry(0.7, 10, 20);
-    
-    // And put the geometry and material together into a mesh
-    sphere = new THREE.Mesh(geometry, material);
+    geometry = new THREE.BoxGeometry(0.5,3,0.5);
+    arm = new THREE.Mesh(geometry, material);
+    arm.rotation.y = Math.PI / 5;
+    armGroup.add( arm );
+    armGroup.position.set(0,-1, 0);
+    elbowGroup = new THREE.Object3D();
+    armGroup.add(elbowGroup);
 
-    // sphere.position.set(2, 1, 1);
-    console.log("sphere position", sphere.position);
-    // Add the sphere mesh to our group
-    sphereGroup.add( sphere );
-
-    coneGroup = new THREE.Object3D();
-    sphereGroup.add(coneGroup);
     // Create the cone geometry
-    geometry = new THREE.CylinderGeometry(0, .333, .444, 20, 20);
+    geometry = new THREE.BoxGeometry(1, 1, 1);
+    elbow = new THREE.Mesh(geometry, material);
+    elbow.rotation.y = Math.PI / 5;
+    elbowGroup.add( elbow );
+    elbowGroup.position.set(0,-2,0)
+    forearmGroup = new THREE.Object3D();
+    elbowGroup.add(forearmGroup);
 
-    // coneGroup.position.set(1, 1.222, -.667);
-    // And put the geometry and material together into a mesh
-    cone = new THREE.Mesh(geometry, material);
+    // geometry = new THREE.BoxGeometry(0.5,3,0.5);
+    // forearm = new THREE.Mesh(geometry, material);
+    // forear
 
-    // Move the cone up and out from the sphere
-    cone.position.set(0, 2.222, 0);
-        
-    // Add the cone mesh to our group
-    coneGroup.add( cone );
-    
-    // Now add the group to our scene
-    scene.add( cubeGroup );
+
+
+    scene.add( shoulderGroup );
+
 
     // add mouse handling so we can rotate the scene
     //addMouseHandler(canvas, cubeGroup);
