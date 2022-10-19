@@ -1,7 +1,7 @@
 "use strict"; 
 
 import * as THREE from "../../libs/three.js/three.module.js"
-import * as dat from "../../dat.gui/build/dat.gui.module.js"
+import * as dat from "../../dat.gui-master/build/dat.gui.module.js"
 
 let renderer = null, scene = null, camera = null;
 let upperArm = null, shoulder=null,elbow=null,forearm=null,wrist=null,hand=null, armGroup = null, shoulderGroup=null,elbowGroup=null,forearmGroup=null,wristGroup=null,handGroup=null,upperArmGroup=null 
