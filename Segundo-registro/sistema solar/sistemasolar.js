@@ -1,335 +1,410 @@
-"use strict"; 
+//Itzel Yanabany Castro Becerril
+//Sistema Solar
 
 import * as THREE from '../../libs/three.js/three.module.js'
-import {OrbitControls} from '../../libs/three.js/controls/OrbitControls.js'
-let renderer = null, scene = null, camera = null, group = null, objectList = [], orbitControls = null;
+import { OrbitControls } from '../../libs/three.js/controls/OrbitControls.js';
+import { OBJLoader } from '../../libs/three.js/loaders/OBJLoader.js';
+import { MTLLoader } from '../../libs/three.js/loaders/MTLLoader.js';
 
+//Declaramos Variables
+let renderer = null, scene = null, camera = null, group = null,map = null,orbitControls = null,
+ambientLight = null,sol = null,earth =  null,mercurio = null,venus = null,marte = null,jupiter = null,
+saturno = null,urano = null,neptuno = null,pluton = null,sunGrupo = null,planetMercurio = null,
+planetVenus = null,planetTierra = null,planetMarte = null,planetJupiter = null,planetSaturno = null,
+planetUrano = null,planetNeptuno = null,planetPluton = null,
+asteroidesGrupo = null,
+
+objectList = []
+let objMtlModelUrl = {obj:'Textures/10464_Asteroid_v1_Iterations-2.obj', mtl:'Textures/10464_Asteroid_v1_Iterations-2.mtl'};
 let duration = 20000; // ms
 let currentTime = Date.now();
 
-let directionalLight = null, spotLight = null, ambientLight = null;
+let mapUrl = 'Textures/necoarc.png';
 
-
+//La función main que se encarga de llamar a las demás funciones.
 function main()
 {
     const canvas = document.getElementById("webglcanvas");
-
     createScene(canvas);
-    
     update();
 }
 
-function animate() 
+function onError ( err ){ console.error( err ); };
+
+function onProgress( xhr ) 
 {
+    if ( xhr.lengthComputable ) {
+
+        const percentComplete = xhr.loaded / xhr.total * 100;
+        console.log( xhr.target.responseURL, Math.round( percentComplete, 2 ) + '% downloaded' );
+    }
+}
+
+async function loadObjMtl(objModelUrl, objectList, Gx, Gz)
+{
+    console.log("Entra a carga objetos")
+    try
+    {
+        const mtlLoader = new MTLLoader();
+        const materials = await mtlLoader.loadAsync(objModelUrl.mtl, onProgress, onError);
+        materials.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(materials);
+        const object = await objLoader.loadAsync(objModelUrl.obj, onProgress, onError);
+        object.traverse(function (child) {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
+        });
+        object.position.set(Gx,0,Gz);
+        object.scale.set(.01, .01, .01);
+        objectList.push(object);
+        asteroidesGrupo.add(object);
+    }
+    catch (err)
+    {
+        onError(err);
+    }
+}
+
+/**
+ * Updates the rotation of the objects in the scene
+ */
+function animate() {
     let now = Date.now();
     let deltat = now - currentTime;
     currentTime = now;
     let fract = deltat / duration;
-    let angle = Math.PI * 26 * fract;
-
-    for(const object of objectList){ //movimiento
-        if(object)
-            object.rotation.y += angle / 2;
-    }
-
-    for(const object in objectList){
-        if(object){
-            
-        }
-    }
+    let angle = Math.PI * 1 * fract; 
+    sunGrupo.rotation.y += angle;
+    planetMercurio.rotation.y += angle;
+    movePlanets(planetMercurio, 150, 10)
+    planetVenus.rotation.y += angle;
+    movePlanets(planetVenus, 200, 8)
+    planetTierra.rotation.y += angle;
+    movePlanets(planetTierra, 250, 7)    
+    planetMarte.rotation.y += angle;
+    movePlanets(planetMarte, 310, 5)
+    planetJupiter.rotation.y += angle;
+    movePlanets(planetJupiter, 500, 3)
+    planetSaturno.rotation.y += angle;
+    movePlanets(planetSaturno, 675, 1)
+    planetUrano.rotation.y += angle;
+    movePlanets(planetUrano, 775, 0.7)
+    planetNeptuno.rotation.y += angle;
+    movePlanets(planetNeptuno, 875, 0.4)  
+    planetPluton.rotation.y += angle;
+    movePlanets(planetPluton, 930, 0.1)  
 }
 
+/**
+ * Runs the update loop: updates the objects in the scene
+ */
 function update() 
 {
     requestAnimationFrame(function() { update(); });
-    
-    // Render the scene
+    var time = Date.now();
+    movePlanets(earth, time)
     renderer.render( scene, camera );
-
-    // Spin the cube for next frame
     animate();
-
-    // Update the camera controller
     orbitControls.update();
 }
 
-function createScene(canvas) 
-{
-    // Create the Three.js renderer and attach it to our canvas
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
-
-    // Set the viewport size
-    renderer.setSize(canvas.width, canvas.height);
-
-    // Turn on shadows
-    renderer.shadowMap.enabled = true;
-    
-    // Options are THREE.BasicShadowMap, THREE.PCFShadowMap, PCFSoftShadowMap
-    renderer.shadowMap.type = THREE.PCFShadowMap;
-    
-    // Create a new Three.js scene
-    scene = new THREE.Scene();
-
-    // Add  a camera so we can view the scene
-    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.set(-2, 6, 12);
-
-    orbitControls = new OrbitControls(camera, renderer.domElement);
+//Creación de las esferas para los planetas.
+async function createSphere(x,y,z,url){
+    return new Promise(async (resolve) => {
+        const textureUrl = url;
+        //Texturas del shader material 
+        const texture = new THREE.TextureLoader().load(textureUrl);
+        const material = new THREE.MeshPhongMaterial({ map: texture });
         
-    // Add a directional light to show off the object
-    directionalLight = new THREE.DirectionalLight( 0xaaaaaa, 4);
+        let geometry = new THREE.SphereGeometry (x,y,z);
 
-    //Background
-    const background_texture = new THREE.TextureLoader().load('Textures/stars.jpg')
-    scene.background = background_texture
+        let sphere = new THREE.Mesh(geometry, material);
 
-    // Create and add all the lights
-    const point_light = new THREE.PointLight(0xFFFFFF, 2, 300)
-    scene.add(point_light)
-
-    ambientLight = new THREE.AmbientLight ( 0x444444, 0.8);
-    scene.add(ambientLight);
-    
-    //MERCURY --------------------------------------------------
-    let geometry = new THREE.SphereGeometry( 0.2, 64, 32 );
-    let texture = new THREE.TextureLoader().load('Textures/mercury.jpg');
-    let material = new THREE.MeshStandardMaterial({map:texture})
-    let sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 4
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //THE SUN ---------------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 3.3, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/sun.jpg');
-    material = new THREE.MeshBasicMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-
-    //VENUS ---------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.4, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/venus.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 5.5
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //OUR GLORIOUS EARTH --------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.45, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/earth.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 7
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //OUR MOON----------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.065, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.z = 0.86
-    sphere.position.x = 7.2
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //MARS home of the Martian Manhunter---------------------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.25, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/mars.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 9
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //Mars' moons ----------------------------------------------------------------------------------------------------
-    // for (let i=0;i<=2; i++){
-    //     geometry = new THREE.SphereGeometry( 0.042, 64, 32 );
-    //     texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-    //     material = new THREE.MeshStandardMaterial({map:texture})
-    //     sphere = new THREE.Mesh( geometry, material );
-    //     sphere.position.z = getRndInteger(-1, 1);
-    //     sphere.position.y = getRndInteger(-1, 1)
-    //     sphere.position.x = getRndInteger(8, 10)
-    //     sphere.castShadow = false
-    //     sphere.receiveShadow = true
-    //     scene.add(sphere)
-    //     objectList.push(sphere)
-    // }
-
-    //JUPITER ----------------------------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 1.5, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/jupiter.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 13
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    sphere.rotateY(.04)
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //Jupiter's moons -----------------------------------------------------------------------------------------------------
-    // for (let i=0;i<=79; i++){
-    //     let radius = (getRndInteger(40, 80))*.001
-    //     geometry = new THREE.SphereGeometry( radius, 64, 32 );
-    //     texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-    //     material = new THREE.MeshStandardMaterial({map:texture})
-    //     sphere = new THREE.Mesh( geometry, material );
-    //     sphere.position.z = getRndInteger(-3, 3);
-    //     sphere.position.y = getRndInteger(-3, 3)
-    //     sphere.position.x = getRndInteger(11, 15)
-    //     sphere.castShadow = false
-    //     sphere.receiveShadow = true
-    //     scene.add(sphere)
-    //     objectList.push(sphere)
-    // }
-
-    //SATURN ---------------------------------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 1.15, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/saturn.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 18
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    sphere.rotateY(.04)
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //Saturns moons
-    for (let i=0;i<=82; i++){
-        let radius = (getRndInteger(35, 60))*.001
-        geometry = new THREE.SphereGeometry( radius, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-3, 3);
-        sphere.position.y = getRndInteger(-3, 3)
-        sphere.position.x = getRndInteger(17, 20)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
-
-    //SATURN'S RING ----------------------------------------------------------------------------------------------------
-    // geometry = new THREE.RingGeometry( 1.55, 2.2, 32 );
-    // texture = new THREE.TextureLoader().load('Textures/ring.png')
-    // material = new THREE.MeshStandardMaterial( { map: texture, side: THREE.DoubleSide} );
-    // let ring = new THREE.Mesh( geometry, material );
-    // ring.position.x = 18;
-    // ring.rotation.x = Math.PI / 1.77
-    // scene.add( ring )
-    // objectList.push(sphere)
-
-    //URANUS ------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.51, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/uranus.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 22
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
-
-    //Uranus' moons --------------------------------------------------------------------------------
-    for (let i=0;i<=27; i++){
-        let radius = (getRndInteger(15, 35))*.001
-        geometry = new THREE.SphereGeometry( radius, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-1, 1);
-        sphere.position.y = getRndInteger(-1, 1)
-        sphere.position.x = getRndInteger(21, 24)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
-
-    //NEPTUNE ------------------------------------------------------------------------
-    // geometry = new THREE.SphereGeometry( 0.49, 64, 32 );
-    // texture = new THREE.TextureLoader().load('Textures/neptune.jpg');
-    // material = new THREE.MeshStandardMaterial({map:texture})
-    // sphere = new THREE.Mesh( geometry, material );
-    // sphere.position.y = 0
-    // sphere.position.x = 25
-    // sphere.castShadow = false
-    // sphere.receiveShadow = true
-    // scene.add(sphere)
-    // objectList.push(sphere)
-
-    //Neptune's beard... no, moons jsjs -------------------------------------------------------------------------
-    for (let i=0;i<=14; i++){
-        let radius = (getRndInteger(15, 35))*.001
-        geometry = new THREE.SphereGeometry( radius, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-1, 1);
-        sphere.position.y = getRndInteger(-1, 1)
-        sphere.position.x = getRndInteger(24, 26)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
-
-    //PLUTO ------------------------------------------------------------------------------------------
-    // geometry = new THREE.SphereGeometry( 0.1, 64, 32 );
-    // texture = new THREE.TextureLoader().load('Textures/pluto.jpg');
-    // material = new THREE.MeshStandardMaterial({map:texture})
-    // sphere = new THREE.Mesh( geometry, material );
-    // sphere.position.y = 0
-    // sphere.position.x = 28
-    // sphere.castShadow = false
-    // sphere.receiveShadow = true
-    // scene.add(sphere)
-    // objectList.push(sphere)
-
-    //Pluto's moons --------------------------------------------------------------------
-//     for (let i=0;i<=5; i++){
-//         let radius = (getRndInteger(15, 35))*.001
-//         geometry = new THREE.SphereGeometry( radius, 64, 32 );
-//         texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-//         material = new THREE.MeshStandardMaterial({map:texture})
-//         sphere = new THREE.Mesh( geometry, material );
-//         sphere.position.z = getRndInteger(-1, 1);
-//         sphere.position.y = getRndInteger(-1, 1)
-//         sphere.position.x = getRndInteger(27, 29)
-//         sphere.castShadow = false
-//         sphere.receiveShadow = true
-//         scene.add(sphere)
-//         objectList.push(sphere)
-//     }
+        resolve(sphere)
+    })
 }
 
-function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) ) + min;
-  }
+//Creacion de los anillos para los planetas
+async function createRing(x,y,z,url) {
+    return new Promise(async (resolve) => {
+        const textureUrl = url;
+        //Texturas del shader material
+        const texture = new THREE.TextureLoader().load(textureUrl);
+        const material = new THREE.MeshPhongMaterial({ map: texture });
 
+        let geometry = new THREE.RingGeometry (x,y,z);
+
+        let ring = new THREE.Mesh(geometry, material);
+        ring.rotation.x = 30;
+        ring.visible = true;
+        ring.DoubleSide = true;
+
+        resolve(ring)
+
+    })
+}
+
+//Creación del sol
+async function createSol(x,y,z,url,grupo) {
+    try {
+        const sol = await createSphere(x,y,z,url)
+
+        grupo.add(sol)
+
+    } catch (err) {
+        return err
+    }
+}
+
+//Creación de los planetas
+async function createPlanet(x,y,z,url,grupo, xG) {
+    try {
+        const planet = await createSphere(x,y,z,url)
+
+        grupo.add(planet)
+
+        grupo.position.set(xG, 0, 0);
+
+    } catch (err) {
+        return onError(err)
+    }
+}
+
+//Creación de las lunas para los planetas.
+async function createMoons(x,y,z,url,grupo, Gx) {
+    try {
+        const moon = await createSphere(x,y,z,url)
+
+        grupo.add(moon)
+
+        moon.position.set(Gx, 0, 0);
+
+    } catch (err) {
+        return onError(err)
+    }
+}
+
+async function createRingSaturno(x,y,z,url,grupo) {
+    try {
+        const ring = await createRing(x,y,z,url)
+
+        grupo.add(ring);
+        
+        ring.position.set(0, 0, 0);
+
+    } catch (err) {
+        return onError(err)
+    }
+}
+
+//Movimientos de los planetas.
+async function movePlanets(grupo, orbitRadius, time) {
+    time = time * 0.0001;
+    let date = Date.now() * time;
+    grupo.position.set(Math.cos(date) * orbitRadius, 0, Math.sin(date) * orbitRadius);
+}
+
+//Creación de las orbitas.
+async function createOrbits(orbitPlanet) {
+    var shape = new THREE.Shape();
+    shape.moveTo(orbit, 0);
+    shape.absarc(0, 0, orbitPlanet, 0, 2 * Math.PI, false);
+    var spacedPoints = shape.getSpacedPoints(128);
+    var orbitGeom = new THREE.BufferGeometry().setFromPoints(spacedPoints); 
+    orbitGeom.rotateX(THREE.Math.degToRad(-90));
+    var orbit = new THREE.Line(orbitGeom, new THREE.LineBasicMaterial({
+        color: "white"
+    }));
+    group.add(orbit);
+}
+
+//Creación de la escena
+function createScene(canvas) 
+{
+    renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
+
+    renderer.setSize(canvas.width, canvas.height);
+
+    renderer.shadowMap.enabled = true;
+    
+    renderer.shadowMap.type = THREE.BasicShadowMap;
+    
+    let background_image = new THREE.TextureLoader().load("Textures/stars.jpg")
+
+    background_image.minFilter = THREE.LinearFilter;
+    scene = new THREE.Scene();
+
+    scene.background = background_image;
+
+    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
+    camera.position.set(1500, 300, 0);
+
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    
+    // Luz direccional que se agregará a la escena.
+    const pointLight = new THREE.PointLight(0xff0000, 1, 100);
+    pointLight.position.set(0, 0, 0);
+    scene.add(pointLight);
+
+
+    // This light globally illuminates all objects in the scene equally.
+    // Cannot cast shadows
+    ambientLight = new THREE.AmbientLight( 0x444444, 5);
+    scene.add(ambientLight);
+
+
+    let a = 0;
+    let b = 0;
+    for (let i = 0; i < 28 ; i ++) {
+        a = a += 30
+        b = b += 30
+        let positionx = Math.cos(a) * 380
+        let positionz = Math.sin(b) * 380
+        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+    }
+
+    let j = 0;
+    let k = 0;
+    for (let i = 0; i < 36 ; i ++) {
+        j = j += 10
+        k = k += 10
+        let positionx = Math.cos(j) * 400
+        let positionz = Math.sin(k) * 400
+        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+    }
+
+    let c = 0;
+    let d = 0;
+    for (let i = 0; i < 20 ; i ++) {
+        c = c += 20
+        d = d += 20
+        let positionx = Math.cos(c) * 420
+        let positionz = Math.sin(d) * 420
+        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+    }
+
+     //Agregammos a los grupos correspondientes 
+    group = new THREE.Object3D;
+    scene.add(group);
+
+    sunGrupo = new THREE.Object3D;
+    group.add(sunGrupo)
+
+    asteroidesGrupo = new THREE.Object3D;
+    sunGrupo.add(asteroidesGrupo)
+
+    planetMercurio = new THREE.Object3D;
+    sunGrupo.add(planetMercurio)
+
+    planetVenus = new THREE.Object3D;
+    sunGrupo.add(planetVenus)
+
+    planetTierra = new THREE.Object3D;
+    sunGrupo.add(planetTierra)
+
+    planetMarte = new THREE.Object3D;
+    sunGrupo.add(planetMarte)
+
+    planetJupiter = new THREE.Object3D;
+    sunGrupo.add(planetJupiter)
+
+    planetSaturno = new THREE.Object3D;
+    sunGrupo.add(planetSaturno)
+
+    planetUrano = new THREE.Object3D;
+    sunGrupo.add(planetUrano)
+
+    planetNeptuno = new THREE.Object3D;
+    sunGrupo.add(planetNeptuno)
+
+    planetPluton = new THREE.Object3D;
+    sunGrupo.add(planetPluton)
+
+
+    //Agregamos lunas 
+    const lunaTierra = new THREE.Object3D;
+    planetTierra.add(lunaTierra)
+
+    const lunaMarte = new THREE.Object3D;
+    planetMarte.add(lunaMarte)
+
+    const lunaJupiter = new THREE.Object3D;
+    planetJupiter.add(lunaJupiter)
+
+    const lunaSaturno = new THREE.Object3D;
+    planetSaturno.add(lunaSaturno)
+
+    const lunaUrano = new THREE.Object3D;
+    planetUrano.add(lunaUrano)
+
+    const lunaNeptuno = new THREE.Object3D;
+    planetNeptuno.add(lunaNeptuno)
+
+    const lunaPluton = new THREE.Object3D;
+    planetPluton.add(lunaPluton)
+
+    //Creación de planetas.
+    sol = createSol(100,100,100, 'Textures/sun.jpg', sunGrupo);
+
+    mercurio = createPlanet(10,10,10, 'Textures/mercury.jpg', planetMercurio, 150);
+    createOrbits(150)
+
+    venus = createPlanet(20,20,20, 'Textures/venus.jpg', planetVenus, 200);
+    createOrbits(200)
+
+    earth = createPlanet(20,20,20, 'Textures/earth.jpg', planetTierra, 250);
+    createOrbits(250)
+
+    marte = createPlanet(10,10,10, 'Textures/mars.jpg', planetMarte, 310);
+    createOrbits(310)
+
+    createOrbits(400)
+
+    jupiter = createPlanet(50,50,50, 'Textures/jupiter.jpg', planetJupiter, 500);
+    createOrbits(500)
+
+    saturno = createPlanet(40,40,40, 'Textures/saturn.jpg', planetSaturno, 675);
+    createOrbits(675)
+    createRingSaturno(50,70,30,'Textures/ring.png',planetSaturno)
+
+    urano = createPlanet(30,30,30, 'Textures/uranus.jpg', planetUrano, 775);
+    createOrbits(775)
+
+    neptuno = createPlanet(30,30,30, 'Textures/neptune.jpg', planetNeptuno, 875);
+    createOrbits(875)
+
+    pluton = createPlanet(9,9,9, 'Textures/pluto.jpg', planetPluton, 930);
+    createOrbits(930)
+
+    //Creación de lunas para cada planeta.
+    createMoons(7,7,7, 'Textures/moon.jpg', lunaTierra, 30);
+    createMoons(5,5,5, 'Textures/moon.jpg', lunaMarte, 20);
+    createMoons(5,5,5, 'Textures/moon.jpg', lunaJupiter, 60);
+    createMoons(5,5,5, 'Textures/moon.jpg', lunaUrano, 40);
+    createMoons(5,5,5, 'Textures/moon.jpg', lunaNeptuno, 40);
+    createMoons(5,5,5, 'Textures/moon.jpg', lunaPluton, 15);
+   
+
+
+
+    const map = new THREE.TextureLoader().load(mapUrl);
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.repeat.set(8, 8);
+
+    let geometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+    let mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map:map, side:THREE.DoubleSide}));
+    
+    geometry = new THREE.CylinderGeometry(1, 2, 2, 50, 10);
+    mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.position.y = -3;
+    mesh.castShadow = false;
+    mesh.receiveShadow = true;    
+    group.add( mesh );
+
+
+}
 
 main();
