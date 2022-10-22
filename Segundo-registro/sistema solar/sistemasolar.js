@@ -1,8 +1,7 @@
 "use strict"; 
 
-import * as THREE from '../libs/three.js/three.module.js'
-import { OrbitControls } from '../libs/three.js/controls/OrbitControls.js';
-
+import * as THREE from '../../libs/three.js/three.module.js'
+import {OrbitControls} from '../../libs/three.js/controls/OrbitControls.js'
 let renderer = null, scene = null, camera = null, group = null, objectList = [], orbitControls = null;
 
 let duration = 20000; // ms
@@ -81,7 +80,7 @@ function createScene(canvas)
     directionalLight = new THREE.DirectionalLight( 0xaaaaaa, 4);
 
     //Background
-    const background_texture = new THREE.TextureLoader().load('Textures/stars_background.jpg')
+    const background_texture = new THREE.TextureLoader().load('Textures/stars.jpg')
     scene.background = background_texture
 
     // Create and add all the lights
@@ -161,19 +160,19 @@ function createScene(canvas)
     objectList.push(sphere)
 
     //Mars' moons ----------------------------------------------------------------------------------------------------
-    for (let i=0;i<=2; i++){
-        geometry = new THREE.SphereGeometry( 0.042, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-1, 1);
-        sphere.position.y = getRndInteger(-1, 1)
-        sphere.position.x = getRndInteger(8, 10)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
+    // for (let i=0;i<=2; i++){
+    //     geometry = new THREE.SphereGeometry( 0.042, 64, 32 );
+    //     texture = new THREE.TextureLoader().load('Textures/moon.jpg');
+    //     material = new THREE.MeshStandardMaterial({map:texture})
+    //     sphere = new THREE.Mesh( geometry, material );
+    //     sphere.position.z = getRndInteger(-1, 1);
+    //     sphere.position.y = getRndInteger(-1, 1)
+    //     sphere.position.x = getRndInteger(8, 10)
+    //     sphere.castShadow = false
+    //     sphere.receiveShadow = true
+    //     scene.add(sphere)
+    //     objectList.push(sphere)
+    // }
 
     //JUPITER ----------------------------------------------------------------------------------------------
     geometry = new THREE.SphereGeometry( 1.5, 64, 32 );
@@ -189,20 +188,20 @@ function createScene(canvas)
     objectList.push(sphere)
 
     //Jupiter's moons -----------------------------------------------------------------------------------------------------
-    for (let i=0;i<=79; i++){
-        let radius = (getRndInteger(40, 80))*.001
-        geometry = new THREE.SphereGeometry( radius, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-3, 3);
-        sphere.position.y = getRndInteger(-3, 3)
-        sphere.position.x = getRndInteger(11, 15)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
+    // for (let i=0;i<=79; i++){
+    //     let radius = (getRndInteger(40, 80))*.001
+    //     geometry = new THREE.SphereGeometry( radius, 64, 32 );
+    //     texture = new THREE.TextureLoader().load('Textures/moon.jpg');
+    //     material = new THREE.MeshStandardMaterial({map:texture})
+    //     sphere = new THREE.Mesh( geometry, material );
+    //     sphere.position.z = getRndInteger(-3, 3);
+    //     sphere.position.y = getRndInteger(-3, 3)
+    //     sphere.position.x = getRndInteger(11, 15)
+    //     sphere.castShadow = false
+    //     sphere.receiveShadow = true
+    //     scene.add(sphere)
+    //     objectList.push(sphere)
+    // }
 
     //SATURN ---------------------------------------------------------------------------------------------------
     geometry = new THREE.SphereGeometry( 1.15, 64, 32 );
@@ -234,14 +233,14 @@ function createScene(canvas)
     }
 
     //SATURN'S RING ----------------------------------------------------------------------------------------------------
-    geometry = new THREE.RingGeometry( 1.55, 2.2, 32 );
-    texture = new THREE.TextureLoader().load('Textures/ring.png')
-    material = new THREE.MeshStandardMaterial( { map: texture, side: THREE.DoubleSide} );
-    let ring = new THREE.Mesh( geometry, material );
-    ring.position.x = 18;
-    ring.rotation.x = Math.PI / 1.77
-    scene.add( ring )
-    objectList.push(sphere)
+    // geometry = new THREE.RingGeometry( 1.55, 2.2, 32 );
+    // texture = new THREE.TextureLoader().load('Textures/ring.png')
+    // material = new THREE.MeshStandardMaterial( { map: texture, side: THREE.DoubleSide} );
+    // let ring = new THREE.Mesh( geometry, material );
+    // ring.position.x = 18;
+    // ring.rotation.x = Math.PI / 1.77
+    // scene.add( ring )
+    // objectList.push(sphere)
 
     //URANUS ------------------------------------------------------------------------
     geometry = new THREE.SphereGeometry( 0.51, 64, 32 );
@@ -272,16 +271,16 @@ function createScene(canvas)
     }
 
     //NEPTUNE ------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.49, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/neptune.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 25
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
+    // geometry = new THREE.SphereGeometry( 0.49, 64, 32 );
+    // texture = new THREE.TextureLoader().load('Textures/neptune.jpg');
+    // material = new THREE.MeshStandardMaterial({map:texture})
+    // sphere = new THREE.Mesh( geometry, material );
+    // sphere.position.y = 0
+    // sphere.position.x = 25
+    // sphere.castShadow = false
+    // sphere.receiveShadow = true
+    // scene.add(sphere)
+    // objectList.push(sphere)
 
     //Neptune's beard... no, moons jsjs -------------------------------------------------------------------------
     for (let i=0;i<=14; i++){
@@ -300,32 +299,32 @@ function createScene(canvas)
     }
 
     //PLUTO ------------------------------------------------------------------------------------------
-    geometry = new THREE.SphereGeometry( 0.1, 64, 32 );
-    texture = new THREE.TextureLoader().load('Textures/pluto.jpg');
-    material = new THREE.MeshStandardMaterial({map:texture})
-    sphere = new THREE.Mesh( geometry, material );
-    sphere.position.y = 0
-    sphere.position.x = 28
-    sphere.castShadow = false
-    sphere.receiveShadow = true
-    scene.add(sphere)
-    objectList.push(sphere)
+    // geometry = new THREE.SphereGeometry( 0.1, 64, 32 );
+    // texture = new THREE.TextureLoader().load('Textures/pluto.jpg');
+    // material = new THREE.MeshStandardMaterial({map:texture})
+    // sphere = new THREE.Mesh( geometry, material );
+    // sphere.position.y = 0
+    // sphere.position.x = 28
+    // sphere.castShadow = false
+    // sphere.receiveShadow = true
+    // scene.add(sphere)
+    // objectList.push(sphere)
 
     //Pluto's moons --------------------------------------------------------------------
-    for (let i=0;i<=5; i++){
-        let radius = (getRndInteger(15, 35))*.001
-        geometry = new THREE.SphereGeometry( radius, 64, 32 );
-        texture = new THREE.TextureLoader().load('Textures/moon.jpg');
-        material = new THREE.MeshStandardMaterial({map:texture})
-        sphere = new THREE.Mesh( geometry, material );
-        sphere.position.z = getRndInteger(-1, 1);
-        sphere.position.y = getRndInteger(-1, 1)
-        sphere.position.x = getRndInteger(27, 29)
-        sphere.castShadow = false
-        sphere.receiveShadow = true
-        scene.add(sphere)
-        objectList.push(sphere)
-    }
+//     for (let i=0;i<=5; i++){
+//         let radius = (getRndInteger(15, 35))*.001
+//         geometry = new THREE.SphereGeometry( radius, 64, 32 );
+//         texture = new THREE.TextureLoader().load('Textures/moon.jpg');
+//         material = new THREE.MeshStandardMaterial({map:texture})
+//         sphere = new THREE.Mesh( geometry, material );
+//         sphere.position.z = getRndInteger(-1, 1);
+//         sphere.position.y = getRndInteger(-1, 1)
+//         sphere.position.x = getRndInteger(27, 29)
+//         sphere.castShadow = false
+//         sphere.receiveShadow = true
+//         scene.add(sphere)
+//         objectList.push(sphere)
+//     }
 }
 
 function getRndInteger(min, max) {
