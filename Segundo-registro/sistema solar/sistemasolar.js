@@ -8,20 +8,19 @@ import { MTLLoader } from '../../libs/three.js/loaders/MTLLoader.js';
 
 //Declaramos Variables
 let renderer = null, scene = null, camera = null, group = null,map = null,orbitControls = null,
-ambientLight = null,sol = null,earth =  null,mercurio = null,venus = null,marte = null,jupiter = null,
-saturno = null,urano = null,neptuno = null,pluton = null,sunGrupo = null,planetMercurio = null,
-planetVenus = null,planetTierra = null,planetMarte = null,planetJupiter = null,planetSaturno = null,
-planetUrano = null,planetNeptuno = null,planetPluton = null,
-asteroidesGrupo = null,
+ambientLight = null,sun = null,earth =  null,mercury = null,venus = null,mars = null,jupiter = null,
+saturn = null,uranus = null,neptune = null,pluto = null,sunGroup = null,planetMercurio = null,
+planetVenus = null,planetEarth = null,planetMarte = null,planetJupiter = null,planetSaturn = null,
+planetUranus = null,planetNeptune = null,planetPluto = null,
+asteroidesGrupo = null, 
 
 objectList = []
 let objMtlModelUrl = {obj:'Textures/10464_Asteroid_v1_Iterations-2.obj', mtl:'Textures/10464_Asteroid_v1_Iterations-2.mtl'};
 let duration = 20000; // ms
 let currentTime = Date.now();
 
-let mapUrl = 'Textures/necoarc.png';
 
-//La función main que se encarga de llamar a las demás funciones.
+
 function main()
 {
     const canvas = document.getElementById("webglcanvas");
@@ -77,25 +76,25 @@ function animate() {
     currentTime = now;
     let fract = deltat / duration;
     let angle = Math.PI * 1 * fract; 
-    sunGrupo.rotation.y += angle;
+    sunGroup.rotation.y += angle;
     planetMercurio.rotation.y += angle;
     movePlanets(planetMercurio, 150, 10)
     planetVenus.rotation.y += angle;
     movePlanets(planetVenus, 200, 8)
-    planetTierra.rotation.y += angle;
-    movePlanets(planetTierra, 250, 7)    
+    planetEarth.rotation.y += angle;
+    movePlanets(planetEarth, 250, 7)    
     planetMarte.rotation.y += angle;
     movePlanets(planetMarte, 310, 5)
     planetJupiter.rotation.y += angle;
     movePlanets(planetJupiter, 500, 3)
-    planetSaturno.rotation.y += angle;
-    movePlanets(planetSaturno, 675, 1)
-    planetUrano.rotation.y += angle;
-    movePlanets(planetUrano, 775, 0.7)
-    planetNeptuno.rotation.y += angle;
-    movePlanets(planetNeptuno, 875, 0.4)  
-    planetPluton.rotation.y += angle;
-    movePlanets(planetPluton, 930, 0.1)  
+    planetSaturn.rotation.y += angle;
+    movePlanets(planetSaturn, 675, 1)
+    planetUranus.rotation.y += angle;
+    movePlanets(planetUranus, 775, 0.7)
+    planetNeptune.rotation.y += angle;
+    movePlanets(planetNeptune, 875, 0.4)  
+    planetPluto.rotation.y += angle;
+    movePlanets(planetPluto, 930, 0.1)  
 }
 
 /**
@@ -122,6 +121,7 @@ async function createSphere(x,y,z,url){
         let geometry = new THREE.SphereGeometry (x,y,z);
 
         let sphere = new THREE.Mesh(geometry, material);
+        sphere.receiveShadow = true;
 
         resolve(sphere)
     })
@@ -148,9 +148,11 @@ async function createRing(x,y,z,url) {
 }
 
 //Creación del sol
-async function createSol(x,y,z,url,grupo) {
+async function createSun(x,y,z,url,grupo) {
     try {
         const sol = await createSphere(x,y,z,url)
+        sol.castShadow = false;
+        sol.receiveShadow = true;
 
         grupo.add(sol)
 
@@ -159,11 +161,11 @@ async function createSol(x,y,z,url,grupo) {
     }
 }
 
-//Creación de los planetas
 async function createPlanet(x,y,z,url,grupo, xG) {
-    try {
+    try {   
         const planet = await createSphere(x,y,z,url)
-
+        planet.castShadow =false;
+        planet.receiveShadow = true;
         grupo.add(planet)
 
         grupo.position.set(xG, 0, 0);
@@ -173,10 +175,11 @@ async function createPlanet(x,y,z,url,grupo, xG) {
     }
 }
 
-//Creación de las lunas para los planetas.
+
 async function createMoons(x,y,z,url,grupo, Gx) {
     try {
         const moon = await createSphere(x,y,z,url)
+        
 
         grupo.add(moon)
 
@@ -187,7 +190,7 @@ async function createMoons(x,y,z,url,grupo, Gx) {
     }
 }
 
-async function createRingSaturno(x,y,z,url,grupo) {
+async function createSaturnRing(x,y,z,url,grupo) {
     try {
         const ring = await createRing(x,y,z,url)
 
@@ -200,14 +203,9 @@ async function createRingSaturno(x,y,z,url,grupo) {
     }
 }
 
-//Movimientos de los planetas.
-async function movePlanets(grupo, orbitRadius, time) {
-    time = time * 0.0001;
-    let date = Date.now() * time;
-    grupo.position.set(Math.cos(date) * orbitRadius, 0, Math.sin(date) * orbitRadius);
-}
 
-//Creación de las orbitas.
+
+
 async function createOrbits(orbitPlanet) {
     var shape = new THREE.Shape();
     shape.moveTo(orbit, 0);
@@ -221,7 +219,13 @@ async function createOrbits(orbitPlanet) {
     group.add(orbit);
 }
 
-//Creación de la escena
+async function movePlanets(grupo, orbitRadius, time) {
+    time = time * 0.0001;
+    let date = Date.now() * time;
+    grupo.position.set(Math.cos(date) * orbitRadius, 0, Math.sin(date) * orbitRadius);
+}
+
+
 function createScene(canvas) 
 {
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
@@ -230,7 +234,7 @@ function createScene(canvas)
 
     renderer.shadowMap.enabled = true;
     
-    renderer.shadowMap.type = THREE.BasicShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     
     let background_image = new THREE.TextureLoader().load("Textures/stars.jpg")
 
@@ -244,155 +248,149 @@ function createScene(canvas)
 
     orbitControls = new OrbitControls(camera, renderer.domElement);
     
-    // Luz direccional que se agregará a la escena.
-    const pointLight = new THREE.PointLight(0xff0000, 1, 100);
+ //lights
+    const pointLight = new THREE.PointLight(0xff0000, 2, 300);
     pointLight.position.set(0, 0, 0);
     scene.add(pointLight);
-
-
-    // This light globally illuminates all objects in the scene equally.
-    // Cannot cast shadows
-    ambientLight = new THREE.AmbientLight( 0x444444, 5);
+    ambientLight = new THREE.AmbientLight( 0x444444, 3);
     scene.add(ambientLight);
 
 
-    let a = 0;
-    let b = 0;
+    let a = 0,b = 0;
     for (let i = 0; i < 28 ; i ++) {
         a = a += 30
         b = b += 30
-        let positionx = Math.cos(a) * 380
-        let positionz = Math.sin(b) * 380
-        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+        let xpos = Math.cos(a) * 380
+        let zpos = Math.sin(b) * 380
+        loadObjMtl(objMtlModelUrl, objectList, xpos, zpos)
     }
 
-    let j = 0;
-    let k = 0;
+    let c = 0, d = 0;
     for (let i = 0; i < 36 ; i ++) {
-        j = j += 10
-        k = k += 10
-        let positionx = Math.cos(j) * 400
-        let positionz = Math.sin(k) * 400
-        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+        c = c += 10
+        d = d += 10
+        let xPos = Math.cos(c) * 400
+        let zpos = Math.sin(d) * 400
+        loadObjMtl(objMtlModelUrl, objectList, xPos, zpos)
     }
 
-    let c = 0;
-    let d = 0;
+    let e = 0,f = 0;
     for (let i = 0; i < 20 ; i ++) {
-        c = c += 20
-        d = d += 20
-        let positionx = Math.cos(c) * 420
-        let positionz = Math.sin(d) * 420
-        loadObjMtl(objMtlModelUrl, objectList, positionx, positionz)
+        e = e += 20
+        f = f += 20
+        let xpos = Math.cos(e) * 420
+        let zpos = Math.sin(f) * 420
+        loadObjMtl(objMtlModelUrl, objectList, xpos, zpos)
     }
 
-     //Agregammos a los grupos correspondientes 
+     //maingroup aggregation
     group = new THREE.Object3D;
     scene.add(group);
 
-    sunGrupo = new THREE.Object3D;
-    group.add(sunGrupo)
+    sunGroup = new THREE.Object3D;
+    group.add(sunGroup)
 
     asteroidesGrupo = new THREE.Object3D;
-    sunGrupo.add(asteroidesGrupo)
+    sunGroup.add(asteroidesGrupo)
 
     planetMercurio = new THREE.Object3D;
-    sunGrupo.add(planetMercurio)
+    sunGroup.add(planetMercurio)
 
     planetVenus = new THREE.Object3D;
-    sunGrupo.add(planetVenus)
+    sunGroup.add(planetVenus)
 
-    planetTierra = new THREE.Object3D;
-    sunGrupo.add(planetTierra)
+    planetEarth = new THREE.Object3D;
+    sunGroup.add(planetEarth)
 
     planetMarte = new THREE.Object3D;
-    sunGrupo.add(planetMarte)
+    sunGroup.add(planetMarte)
 
     planetJupiter = new THREE.Object3D;
-    sunGrupo.add(planetJupiter)
+    sunGroup.add(planetJupiter)
 
-    planetSaturno = new THREE.Object3D;
-    sunGrupo.add(planetSaturno)
+    planetSaturn = new THREE.Object3D;
+    sunGroup.add(planetSaturn)
 
-    planetUrano = new THREE.Object3D;
-    sunGrupo.add(planetUrano)
+    planetUranus = new THREE.Object3D;
+    sunGroup.add(planetUranus)
 
-    planetNeptuno = new THREE.Object3D;
-    sunGrupo.add(planetNeptuno)
+    planetNeptune = new THREE.Object3D;
+    sunGroup.add(planetNeptune)
 
-    planetPluton = new THREE.Object3D;
-    sunGrupo.add(planetPluton)
+    planetPluto = new THREE.Object3D;
+    sunGroup.add(planetPluto)
 
 
-    //Agregamos lunas 
-    const lunaTierra = new THREE.Object3D;
-    planetTierra.add(lunaTierra)
 
-    const lunaMarte = new THREE.Object3D;
-    planetMarte.add(lunaMarte)
 
-    const lunaJupiter = new THREE.Object3D;
-    planetJupiter.add(lunaJupiter)
+    //moon agg
+    const earthMoon = new THREE.Object3D;
+    planetEarth.add(earthMoon)
+
+    const masrMoon = new THREE.Object3D;
+    planetMarte.add(masrMoon)
+
+    const jupiterMoon = new THREE.Object3D;
+    planetJupiter.add(jupiterMoon)
 
     const lunaSaturno = new THREE.Object3D;
-    planetSaturno.add(lunaSaturno)
+    planetSaturn.add(lunaSaturno)
 
-    const lunaUrano = new THREE.Object3D;
-    planetUrano.add(lunaUrano)
+    const uranusMoon = new THREE.Object3D;
+    planetUranus.add(uranusMoon)
 
-    const lunaNeptuno = new THREE.Object3D;
-    planetNeptuno.add(lunaNeptuno)
+    const neptuneMoon = new THREE.Object3D;
+    planetNeptune.add(neptuneMoon)
 
-    const lunaPluton = new THREE.Object3D;
-    planetPluton.add(lunaPluton)
+    const plutoMoon = new THREE.Object3D;
+    planetPluto.add(plutoMoon)
 
     //Creación de planetas.
-    sol = createSol(100,100,100, 'Textures/sun.jpg', sunGrupo);
+    sun = createSun(100,100,100, 'Textures/sun.jpg', sunGroup);
 
-    mercurio = createPlanet(10,10,10, 'Textures/mercury.jpg', planetMercurio, 150);
+    mercury = createPlanet(10,10,10, 'Textures/mercury.jpg', planetMercurio, 150);
     createOrbits(150)
 
     venus = createPlanet(20,20,20, 'Textures/venus.jpg', planetVenus, 200);
     createOrbits(200)
 
-    earth = createPlanet(20,20,20, 'Textures/earth.jpg', planetTierra, 250);
+    earth = createPlanet(20,20,20, 'Textures/earth.jpg', planetEarth, 250);
     createOrbits(250)
 
-    marte = createPlanet(10,10,10, 'Textures/mars.jpg', planetMarte, 310);
+    mars = createPlanet(10,10,10, 'Textures/mars.jpg', planetMarte, 310);
     createOrbits(310)
-
-    createOrbits(400)
 
     jupiter = createPlanet(50,50,50, 'Textures/jupiter.jpg', planetJupiter, 500);
     createOrbits(500)
 
-    saturno = createPlanet(40,40,40, 'Textures/saturn.jpg', planetSaturno, 675);
+    saturn = createPlanet(40,40,40, 'Textures/saturn.jpg', planetSaturn, 675);
     createOrbits(675)
-    createRingSaturno(50,70,30,'Textures/ring.png',planetSaturno)
 
-    urano = createPlanet(30,30,30, 'Textures/uranus.jpg', planetUrano, 775);
+    createSaturnRing(50,70,30,'Textures/ring.png',planetSaturn)
+
+    uranus = createPlanet(30,30,30, 'Textures/uranus.jpg', planetUranus, 775);
     createOrbits(775)
 
-    neptuno = createPlanet(30,30,30, 'Textures/neptune.jpg', planetNeptuno, 875);
+    neptune = createPlanet(30,30,30, 'Textures/neptune.jpg', planetNeptune, 875);
     createOrbits(875)
 
-    pluton = createPlanet(9,9,9, 'Textures/pluto.jpg', planetPluton, 930);
+    pluto = createPlanet(9,9,9, 'Textures/necoarc.png', planetPluto, 930);
     createOrbits(930)
 
+
+
     //Creación de lunas para cada planeta.
-    createMoons(7,7,7, 'Textures/moon.jpg', lunaTierra, 30);
-    createMoons(5,5,5, 'Textures/moon.jpg', lunaMarte, 20);
-    createMoons(5,5,5, 'Textures/moon.jpg', lunaJupiter, 60);
-    createMoons(5,5,5, 'Textures/moon.jpg', lunaUrano, 40);
-    createMoons(5,5,5, 'Textures/moon.jpg', lunaNeptuno, 40);
-    createMoons(5,5,5, 'Textures/moon.jpg', lunaPluton, 15);
+    createMoons(7,7,7, 'Textures/moon.jpg', earthMoon, 30);
+    createMoons(5,5,5, 'Textures/moon.jpg', masrMoon, 20);
+    createMoons(5,5,5, 'Textures/moon.jpg', jupiterMoon, 60);
+    createMoons(5,5,5, 'Textures/moon.jpg', uranusMoon, 40);
+    createMoons(5,5,5, 'Textures/moon.jpg', neptuneMoon, 40);
+    createMoons(5,5,5, 'Textures/moon.jpg', plutoMoon, 15);
    
 
 
 
-    const map = new THREE.TextureLoader().load(mapUrl);
-    map.wrapS = map.wrapT = THREE.RepeatWrapping;
-    map.repeat.set(8, 8);
+
 
     let geometry = new THREE.PlaneGeometry(200, 200, 50, 50);
     let mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map:map, side:THREE.DoubleSide}));
