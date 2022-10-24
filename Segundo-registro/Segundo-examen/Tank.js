@@ -11,7 +11,8 @@ let tankObj = {obj:'Tank/Tank.obj', map:'Tank/Tank_texture.jpg'};
 let turretObj = {obj:'Tank/Turret.obj', map:'Tank/Tank_texture.jpg'};
 const gui = new dat.GUI();
 let SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;
-
+let tankgroup = null, tank = null;
+let turretgroup = null, turret = null;
 
 let mapUrl = "../../images/necoarc.png";
 
@@ -22,6 +23,8 @@ function main()
     createScene(canvas);
 
     update();
+
+    
 }
 //troubleshooting
 function onError ( err ){ console.error(err); };
@@ -69,12 +72,13 @@ async function loadObj(objModelUrl, objectList,xpos,ypos,zpos)
         object.position.z = zpos;
         object.position.x = xpos;
         object.position.y = ypos;
-        object.rotation.y = ypos;
+      
+    
         object.name = "objObject";
+       
         
-        
-        objectList.push(object);
-        scene.add(object);
+       
+        return object
     }
     catch (err) 
     {
@@ -96,13 +100,12 @@ async function createScene(canvas)
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
     scene = new THREE.Scene();
-
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
     camera.position.set(10, 1, 1.5);
-
     orbitControls = new OrbitControls(camera, renderer.domElement);
 
-   // Create and add all the lights
+
+    // Lights
    spotLight = new THREE.SpotLight (0xaaaaaa);
    spotLight.position.set(2, 8, 15);
    spotLight.target.position.set(-2, 0, -2);
@@ -117,14 +120,15 @@ async function createScene(canvas)
    spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
    spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
 
-//    ambientLight = new THREE.AmbientLight ( 0x444444, 0.8);
-//    scene.add(ambientLight);
+   tankgroup = new THREE.Object3D;
+   turretgroup = new THREE.Object3D;
+   tankgroup.add(turretgroup);
+   tank = await loadObj(tankObj, objectList, 0,-1.5, .5);
+   tankgroup.add(tank);
+   turret = await loadObj(turretObj, objectList, 0,-0.5, .5);
+   turretgroup.add(turret);
 
-   loadObj(tankObj, objectList, 0,-1.5, .5);
-   loadObj(turretObj, objectList, 0,-.5, .5);
-    group = new THREE.Object3D
-    scene.add(group);
-    
+   scene.add(tankgroup);
     const map = new THREE.TextureLoader().load(mapUrl);
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.repeat.set(8, 8);
@@ -136,8 +140,16 @@ async function createScene(canvas)
     mesh.position.y = -4.02;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+
+    gui.add(tankgroup.rotation, "y").min(-0.5).max(0.5).step(0.1).name("tank y")
+    gui.add(turretgroup.rotation, "y").min(-0.5).max(0.5).step(0.1).name("turret y")
+
     scene.add( mesh );
 
+  
+
 }
+
+
 
 main();
