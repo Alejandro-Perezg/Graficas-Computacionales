@@ -1,6 +1,3 @@
-//Itzel Yanabany Castro Becerril
-//Sistema Solar
-
 import * as THREE from '../../libs/three.js/three.module.js'
 import { OrbitControls } from '../../libs/three.js/controls/OrbitControls.js';
 import { OBJLoader } from '../../libs/three.js/loaders/OBJLoader.js';
